@@ -1,26 +1,24 @@
 library(bayesplot)
-suppressPackageStartupMessages(library(rstanarm))
-suppressPackageStartupMessages(library(loo))
 context("PPC: loo")
 
 options(useFancyQuotes = FALSE)
 
-ITER <- 1000
-CHAINS <- 3
-capture.output(
-  fit <- stan_glm(mpg ~ wt + am, data = mtcars,
-                  iter = ITER, chains = CHAINS, refresh = 0)
-)
-y <- fit$y
-yrep <- posterior_predict(fit)
-
-suppressWarnings(
-  lw <- psislw(-log_lik(fit), cores = 2)$lw_smooth
-)
-suppressWarnings(
-  pits <- rstantools::loo_pit(yrep, y, lw)
-)
-
+ITER <- 300
+CHAINS <- 2
+# capture.output(
+#   fit <- stan_glm(mpg ~ wt + am, data = mtcars,
+#                   iter = ITER, chains = CHAINS, refresh = 0)
+# )
+# y <- fit$y
+# yrep <- posterior_predict(fit)
+#
+# suppressWarnings(
+#   lw <- psislw(-log_lik(fit), cores = 2)$lw_smooth
+# )
+# suppressWarnings(
+#   pits <- rstantools::loo_pit(yrep, y, lw)
+# )
+load("data-for-ppc-loo.rda") # loads 'y', 'yrep', 'lw', 'pits'
 
 test_that("ppc_loo_pit returns ggplot object", {
   expect_gg(p1 <- ppc_loo_pit(y, yrep, lw))
@@ -76,5 +74,3 @@ test_that("errors if dimensions of yrep and lw don't match", {
     fixed = TRUE
   )
 })
-
-

@@ -1,15 +1,15 @@
 library(bayesplot)
-suppressPackageStartupMessages(library(rstanarm))
 context("MCMC: nuts")
 
-ITER <- 1000
-CHAINS <- 3
-capture.output(
-  fit <- stan_glm(mpg ~ wt + am, data = mtcars,
-                  iter = ITER, chains = CHAINS, refresh = 0)
-)
-np <- nuts_params(fit)
-lp <- log_posterior(fit)
+ITER <- 400
+CHAINS <- 2
+# capture.output(
+#   fit <- stan_glm(mpg ~ wt + am, data = mtcars,
+#                   iter = ITER, chains = CHAINS, refresh = 0)
+# )
+# np <- nuts_params(fit)
+# lp <- log_posterior(fit)
+load("data-for-mcmc-nuts.rda") # loads 'np' and 'lp' data frames
 
 test_that("all mcmc_nuts_* (except energy) return gtable objects", {
   expect_gtable(mcmc_nuts_acceptance(np, lp))
@@ -72,7 +72,7 @@ test_that("validate_nuts_data_frame throws errors", {
     "lp data frame must have columns: Iteration, Value, Chain"
   )
 
-  lp2 <- subset(lp, Chain %in% 1:2)
+  lp2 <- subset(lp, Chain == 1)
   expect_error(
     validate_nuts_data_frame(np, lp2),
     "Number of chains"

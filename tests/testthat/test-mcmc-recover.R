@@ -1,15 +1,15 @@
 library(bayesplot)
-suppressPackageStartupMessages(library(rstanarm))
 context("MCMC: recover")
 
-alpha <- 1; beta <- c(-.5, .5); sigma <- 2
-X <- matrix(rnorm(200), 100, 2)
-y <- rnorm(100, mean = c(alpha + X %*% beta), sd = sigma)
-capture.output(
-  fit <- stan_glm(y ~ ., data = data.frame(y, X))
-)
-draws <- as.matrix(fit)
-true <- c(alpha, beta, sigma)
+# alpha <- 1; beta <- c(-.5, .5); sigma <- 2
+# X <- matrix(rnorm(200), 100, 2)
+# y <- rnorm(100, mean = c(alpha + X %*% beta), sd = sigma)
+# capture.output(
+#   fit <- stan_glm(y ~ ., data = data.frame(y, X), iter = 200, chains = 2)
+# )
+# draws <- as.matrix(fit)
+# true <- c(alpha, beta, sigma)
+load("data-for-mcmc-recover.rda") # loads 'draws' matrix and 'true' vector
 
 test_that("mcmc_recover_intervals throws correct errors", {
   expect_error(

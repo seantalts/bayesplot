@@ -43,19 +43,19 @@ test_that("mcmc_trace options work", {
 
 # displaying divergences in traceplot -------------------------------------
 test_that("mcmc_trace 'divergences' argument works", {
-  suppressPackageStartupMessages(library(rstanarm))
-  suppressWarnings(capture.output(
-    fit <- stan_glm(mpg ~ ., data = mtcars, iter = 200, refresh = 0,
-             prior = hs(), adapt_delta = 0.7)
-  ))
-  draws <- as.array(fit)
+  # suppressPackageStartupMessages(library(rstanarm))
+  # suppressWarnings(capture.output(
+  #   fit <- stan_glm(mpg ~ ., data = mtcars, iter = 200, refresh = 0,
+  #            prior = hs(), adapt_delta = 0.7)
+  # ))
+  # post <- as.array(fit)
+  # divs <- nuts_params(fit, pars = "divergent__")
+  load("data-for-mcmc-pairs.rda") # can use same data as for pairs test
 
-  # divergences via nuts_params
-  divs <- nuts_params(fit, pars = "divergent__")
   g <- mcmc_trace(
-    draws,
+    post,
     pars = "sigma",
-    divergences = divs
+    divergences = np
   )
   expect_gg(g)
   l2_data <- g$layers[[2]]$data
@@ -63,24 +63,24 @@ test_that("mcmc_trace 'divergences' argument works", {
 
   # divergences as vector
   g2 <- mcmc_trace(
-    draws,
+    post,
     pars = "sigma",
-    divergences = sample(c(0,1), nrow(draws), replace = TRUE)
+    divergences = sample(c(0,1), nrow(post), replace = TRUE)
   )
   expect_gg(g2)
   l2_data2 <- g2$layers[[2]]$data
   expect_equal(names(l2_data2), "Divergent")
 
   # check errors & messages
-  expect_error(mcmc_trace(draws, pars = "sigma", divergences = 1),
+  expect_error(mcmc_trace(post, pars = "sigma", divergences = 1),
                "length(divergences) == n_iter is not TRUE",
                fixed = TRUE)
-  expect_error(mcmc_trace(draws[,1:2,], pars = "sigma", divergences = divs),
+  expect_error(mcmc_trace(post[,1,, drop=FALSE], pars = "sigma", divergences = np),
                "length(unique(divergences$Chain)) == n_chain is not TRUE",
                fixed = TRUE)
-  expect_error(mcmc_trace(draws, pars = "sigma", divergences = divs[1:10, ]),
+  expect_error(mcmc_trace(post, pars = "sigma", divergences = np[1:10, ]),
                "length(unique(divergences$Iteration)) == n_iter is not TRUE",
                fixed = TRUE)
-  expect_message(mcmc_trace(draws, pars = "sigma", divergences = rep(0, nrow(draws))),
+  expect_message(mcmc_trace(post, pars = "sigma", divergences = rep(0, nrow(post))),
                  "No divergences to plot.")
 })

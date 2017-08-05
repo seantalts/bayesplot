@@ -1,14 +1,13 @@
 library(bayesplot)
-suppressPackageStartupMessages(library(rstanarm))
 context("Extractors")
 
-ITER <- 1000
-CHAINS <- 3
-capture.output(
-  fit <- stan_glm(mpg ~ wt + am, data = mtcars,
-                  iter = ITER, chains = CHAINS, refresh = 0)
-)
-
+ITER <- 400
+CHAINS <- 2
+# capture.output(
+#   fit <- stan_glm(mpg ~ wt + am, data = mtcars,
+#                   iter = 400, chains = 2, refresh = 0)
+# )
+load("data-for-extractors.rda") # loads 'fit' stanreg object
 x <- list(cbind(a = 1:3, b = rnorm(3)), cbind(a = 1:3, b = rnorm(3)))
 
 # nuts_params and log_posterior methods -----------------------------------
@@ -92,10 +91,10 @@ test_that("neff_ratio.stanreg returns correct structure", {
   ratio <- neff_ratio(fit$stanfit)
   expect_named(ratio)
   ans <- summary(fit)[, "n_eff"] / denom
-  expect_equal(ratio, ans, tol = 0.001)
+  expect_equal(ratio, ans, tol = 0.002)
 
   ratio2 <- neff_ratio(fit$stanfit, pars = c("wt", "sigma"))
   expect_named(ratio2)
   ans2 <- summary(fit, pars = c("wt", "sigma"))[, "n_eff"] / denom
-  expect_equal(ratio2, ans2, tol = 0.001)
+  expect_equal(ratio2, ans2, tol = 0.002)
 })

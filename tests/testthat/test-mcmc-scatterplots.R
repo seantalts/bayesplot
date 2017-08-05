@@ -4,16 +4,15 @@ context("MCMC: scatterplots")
 
 source("data-for-mcmc-tests.R")
 
-# also fit an rstanarm model to use with mcmc_pairs
-capture.output(
-  fit <- stan_glm(mpg ~ wt + am, data = mtcars, iter = 1000, chains = 2, refresh = 0)
-)
-post <- as.array(fit)
-lp <- log_posterior(fit)
-np <- nuts_params(fit)
-divs <- sample(c(0,1), size = 1000, prob = c(0.25, 0.75), replace = TRUE)
-np$Value[np$Parameter=="divergent__"] <- divs # fake divergences
-
+# capture.output(
+#   fit <- stan_glm(mpg ~ wt + am, data = mtcars, iter = 400, chains = 2, refresh = 0)
+# )
+# post <- as.array(fit)
+# lp <- log_posterior(fit)
+# np <- nuts_params(fit)
+# divs <- sample(c(0,1), size = 400, prob = c(0.25, 0.75), replace = TRUE)
+# np$Value[np$Parameter=="divergent__"] <- divs # fake divergences
+load("data-for-mcmc-pairs.rda") # loads 'post', 'lp', 'np'
 
 test_that("mcmc_scatter returns a ggplot object", {
   expect_gg(mcmc_scatter(arr, pars = c("beta[1]", "beta[2]")))
